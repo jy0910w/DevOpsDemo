@@ -22,7 +22,8 @@ jobs:
         run: dotnet restore
 
       - name: Build
-        run: dotnet build --no-restore --configuration Release
+        run: dotnet build DevOpsDemo.sln --configuration Release
 
       - name: Test
-        run: dotnet test --no-build --verbosity normal
+        run: dotnet test DevOpsDemo.Tests/DevOpsDemo.Tests.csproj --configuration Release --verbosity normal
+
