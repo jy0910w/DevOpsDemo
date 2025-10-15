@@ -1,9 +1,7 @@
-name: CI
+name: CI-CD
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
     branches: [ main ]
 
 jobs:
@@ -18,12 +16,25 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      - name: Restore dependencies
+      - name: Restore
         run: dotnet restore
 
       - name: Build
-        run: dotnet build DevOpsDemo.sln --configuration Release
+        run: dotnet build --configuration Release
 
       - name: Test
-        run: dotnet test DevOpsDemo.Tests/DevOpsDemo.Tests.csproj --configuration Release --verbosity normal
+        run: dotnet test --configuration Release --verbosity normal
 
+      # Docker Build & Push
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and Push Docker image
+        run: |
+          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/devopsdemo:latest
+          docker build -t $IMAGE_ID .
+          docker push $IMAGE_ID
